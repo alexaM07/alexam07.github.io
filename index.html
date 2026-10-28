@@ -110,6 +110,7 @@
 
     @media (prefers-reduced-motion: no-preference) {
       .card { animation: aparecer .35s ease-out both; }
+
       @keyframes aparecer {
         from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
@@ -120,32 +121,39 @@
 <body>
   <main class="card" aria-live="polite">
     <div class="icono" id="icono" aria-hidden="true">🚀</div>
+
     <p class="etiqueta" id="etiqueta">Tarjeta QR / NFC</p>
+
     <h1 id="titulo">Tarjeta en proceso de activación</h1>
+
     <p class="mensaje" id="mensaje">
-      Esta tarjeta todavía no ha sido asignada a ningún negocio. Si acabas de recibirla,
-      su activación estará disponible pronto.
+      Esta tarjeta todavía no ha sido asignada a ningún negocio.
+      Si acabas de recibirla, su activación estará disponible pronto.
     </p>
 
     <div class="ayuda">
       <strong>¿Necesitas ayuda?</strong><br>
-      Para activar la tarjeta o informar de un problema, contacta con la persona o empresa que te la entregó.
+      Para activar la tarjeta o informar de un problema,
+      contacta con la persona o empresa que te la entregó.
     </div>
 
-    <a class="boton" id="botonSoporte" href="#" target="_blank" rel="noopener noreferrer">Contactar por WhatsApp</a>
+    <a class="boton" id="botonSoporte" href="#"
+       target="_blank" rel="noopener noreferrer">
+      Contactar por WhatsApp
+    </a>
+
     <p class="pie">Sistema de redirección QR y NFC</p>
   </main>
 
   <script>
     /*
       ACTIVACIÓN DE TARJETAS
+
       1. Busca la tarjeta por su ID (001 a 020).
       2. Pega su enlace de reseñas de Google Maps entre las comillas.
       3. Deja las demás tarjetas como "" hasta que se vendan.
-
-      Ejemplo:
-      "005": "https://g.page/r/ENLACE-DE-RESEÑAS/review",
     */
+
     const DESTINOS = {
       "001": "",
       "002": "",
@@ -169,39 +177,61 @@
       "020": ""
     };
 
-    /* OPCIONAL: pega aquí el enlace completo de WhatsApp de soporte.
-       Formato: https://wa.me/51987654321
-       Usa el código de país y el número, sin +, espacios ni guiones.
-       Déjalo vacío para ocultar el botón de WhatsApp.
+    /*
+      OPCIONAL: enlace completo de WhatsApp de soporte.
+
+      Ejemplo de formato:
+      https://wa.me/51987654321
+
+      Reemplaza el número de ejemplo por el tuyo.
+      Usa el código del país y el número, sin +, espacios ni guiones.
+      Déjalo vacío para ocultar el botón de WhatsApp.
     */
     const ENLACE_WHATSAPP_SOPORTE = "";
 
     const parametros = new URLSearchParams(window.location.search);
     const id = (parametros.get("id") || "").trim();
+
     const existe = Object.prototype.hasOwnProperty.call(DESTINOS, id);
     const destino = existe ? DESTINOS[id].trim() : "";
 
-    // Si el ID está registrado y tiene destino, redirige al perfil de Google Maps.
+    // Tarjeta asignada: redirigir directamente a Google Maps.
     if (existe && destino) {
       try {
         const urlDestino = new URL(destino);
-        if (urlDestino.protocol === "https:" && esEnlaceGoogle(urlDestino.hostname)) {
+
+        if (
+          urlDestino.protocol === "https:" &&
+          esEnlaceGoogle(urlDestino.hostname)
+        ) {
           window.location.href = urlDestino.href;
         } else {
-          mostrarError("El enlace de esta tarjeta necesita revisión. Por favor, contacta con soporte.", "Enlace pendiente de revisión", "⚠️");
+          mostrarError(
+            "El enlace de esta tarjeta necesita revisión. Por favor, contacta con soporte.",
+            "Enlace pendiente de revisión",
+            "⚠️"
+          );
         }
       } catch (error) {
-        mostrarError("El enlace de esta tarjeta no está configurado correctamente. Por favor, contacta con soporte.", "Enlace pendiente de revisión", "⚠️");
+        mostrarError(
+          "El enlace de esta tarjeta no está configurado correctamente. Por favor, contacta con soporte.",
+          "Enlace pendiente de revisión",
+          "⚠️"
+        );
       }
+
     } else if (existe) {
-      // ID correcto, pero todavía no asignado a un negocio.
+
+      // ID correcto, pero todavía sin negocio asignado.
       mostrarError(
         "Esta tarjeta aún no ha sido asignada a ningún comercio. Si acabas de recibirla, contacta con quien te la entregó para completar la activación.",
         "Tarjeta en proceso de activación",
         "🚀"
       );
+
     } else {
-      // Sin ID o con un ID fuera del inventario 001–020.
+
+      // ID ausente o fuera del inventario 001–020.
       mostrarError(
         "El código de esta tarjeta no es válido o no se encuentra en nuestro inventario. Comprueba que escaneaste el código correcto y contacta con soporte si el problema continúa.",
         "No pudimos identificar tu tarjeta",
@@ -211,9 +241,11 @@
 
     function esEnlaceGoogle(hostname) {
       const host = hostname.toLowerCase();
+
       return /(^|\.)google\.[a-z.]+$/.test(host) ||
              host === "g.page" ||
-             host === "goo.gl" || host.endsWith(".goo.gl");
+             host === "goo.gl" ||
+             host.endsWith(".goo.gl");
     }
 
     function mostrarError(texto, titulo, icono) {
@@ -222,6 +254,7 @@
       document.getElementById("icono").textContent = icono;
 
       const boton = document.getElementById("botonSoporte");
+
       if (ENLACE_WHATSAPP_SOPORTE.trim()) {
         boton.href = ENLACE_WHATSAPP_SOPORTE.trim();
         boton.style.display = "inline-block";
