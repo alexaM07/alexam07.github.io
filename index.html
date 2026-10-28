@@ -1,265 +1,385 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f8f5">
-  <title>Activación de tarjeta</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --fondo: #f4f8f5;
-      --tarjeta: #ffffff;
-      --texto: #193127;
-      --suave: #5e7067;
-      --verde: #16834a;
-      --verde-claro: #e5f5eb;
-      --borde: #e0e9e2;
-      --sombra: 0 22px 65px rgba(22, 58, 39, .10);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      padding: 24px;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(circle at 10% 8%, rgba(22, 131, 74, .08), transparent 30%),
-        radial-gradient(circle at 90% 90%, rgba(22, 131, 74, .07), transparent 28%),
-        var(--fondo);
-      color: var(--texto);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    .card {
-      width: min(100%, 480px);
-      padding: clamp(28px, 6vw, 44px);
-      text-align: center;
-      background: var(--tarjeta);
-      border: 1px solid var(--borde);
-      border-radius: 28px;
-      box-shadow: var(--sombra);
-    }
-
-    .icono {
-      width: 76px;
-      height: 76px;
-      margin: 0 auto 22px;
-      display: grid;
-      place-items: center;
-      border-radius: 24px;
-      background: var(--verde-claro);
-      font-size: 38px;
-    }
-
-    .etiqueta {
-      margin: 0 0 10px;
-      color: var(--verde);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(25px, 5vw, 32px);
-      line-height: 1.2;
-      letter-spacing: -.035em;
-    }
-
-    .mensaje {
-      margin: 18px 0 0;
-      color: var(--suave);
-      font-size: 16px;
-      line-height: 1.7;
-    }
-
-    .ayuda {
-      margin-top: 28px;
-      padding: 17px 18px;
-      border: 1px solid var(--borde);
-      border-radius: 16px;
-      background: #fbfdfb;
-      color: var(--suave);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .ayuda strong { color: var(--texto); }
-
-    .boton {
-      display: none;
-      margin-top: 18px;
-      padding: 13px 20px;
-      border-radius: 12px;
-      background: var(--verde);
-      color: white;
-      text-decoration: none;
-      font-weight: 750;
-    }
-
-    .pie {
-      margin: 24px 0 0;
-      color: #85948b;
-      font-size: 12px;
-    }
-
-    @media (prefers-reduced-motion: no-preference) {
-      .card { animation: aparecer .35s ease-out both; }
-
-      @keyframes aparecer {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f2f7f3">
+<meta name="robots" content="noindex, nofollow">
+<title>Tarjeta QR / NFC</title>
+<style>
+  :root {
+    --fondo: #f2f7f3;
+    --tarjeta: #ffffff;
+    --tinta: #173528;
+    --suave: #5b7266;
+    --verde: #2e7d5a;
+    --verde-oscuro: #1f5f43;
+    --menta: #e3f1e8;
+    --linea: #dce8e0;
+    --aviso: #9a6a12;
+    --aviso-fondo: #fbf1dc;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+    font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--tinta);
+    background:
+      radial-gradient(900px 500px at 12% -10%, #dcefe3 0%, transparent 60%),
+      radial-gradient(700px 480px at 100% 110%, #e6f3ea 0%, transparent 60%),
+      var(--fondo);
+  }
+  .tarjeta {
+    width: min(100%, 440px);
+    background: var(--tarjeta);
+    border: 1px solid var(--linea);
+    border-radius: 28px;
+    padding: 40px 28px 26px;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(23, 53, 40, .06), 0 22px 44px -22px rgba(23, 53, 40, .28);
+    animation: entrada .6s cubic-bezier(.2, .7, .2, 1) both;
+  }
+  .icono {
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: var(--menta);
+    display: grid;
+    place-items: center;
+  }
+  .icono svg { width: 78px; height: 78px; display: block; }
+  .icono.aviso { background: var(--aviso-fondo); }
+  h1 {
+    margin: 0 0 12px;
+    font-size: clamp(1.45rem, 5.4vw, 1.8rem);
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    font-weight: 700;
+  }
+  p {
+    margin: 0 auto 14px;
+    max-width: 34ch;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: var(--suave);
+  }
+  .codigo {
+    display: inline-block;
+    margin: 4px 0 18px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--menta);
+    color: var(--verde-oscuro);
+    font-size: .92rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 0 26px;
+    margin-top: 6px;
+    border-radius: 14px;
+    background: var(--verde);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color .2s ease, transform .2s ease;
+  }
+  .boton:hover { background: var(--verde-oscuro); }
+  .boton:active { transform: scale(.98); }
+  .boton svg { width: 20px; height: 20px; }
+  .boton.claro { background: var(--menta); color: var(--verde-oscuro); }
+  .boton.claro:hover { background: #d3e9db; }
+  a:focus-visible { outline: 3px solid #86c5a3; outline-offset: 3px; }
+  .pie {
+    margin: 26px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--linea);
+    max-width: none;
+    font-size: .82rem;
+    color: #7d9187;
+  }
+  /* Ondas NFC: el único movimiento continuo de la página */
+  .onda { opacity: .28; animation: onda 2.6s ease-in-out infinite; }
+  .onda.o2 { animation-delay: .25s; }
+  .onda.o3 { animation-delay: .5s; }
+  @keyframes onda {
+    0%   { opacity: .28; }
+    30%  { opacity: 1; }
+    62%, 100% { opacity: .28; }
+  }
+  @keyframes entrada {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid var(--menta);
+    border-top-color: var(--verde);
+    border-radius: 50%;
+    animation: giro .9s linear infinite;
+  }
+  @keyframes giro { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .tarjeta, .onda, .spinner { animation: none; }
+    .onda { opacity: 1; }
+    .boton { transition: none; }
+  }
+  @media (max-width: 380px) {
+    .tarjeta { padding: 32px 20px 22px; border-radius: 24px; }
+  }
+</style>
 </head>
 <body>
-  <main class="card" aria-live="polite">
-    <div class="icono" id="icono" aria-hidden="true">🚀</div>
 
-    <p class="etiqueta" id="etiqueta">Tarjeta QR / NFC</p>
+<main class="tarjeta">
 
-    <h1 id="titulo">Tarjeta en proceso de activación</h1>
+  <!-- Pantalla: redirigiendo (tarjeta asignada y enlace válido) -->
+  <section class="pantalla" id="pantalla-cargando" hidden aria-live="polite">
+    <div class="icono"><div class="spinner" role="presentation"></div></div>
+    <h1>Abriendo las reseñas…</h1>
+    <p>Te estamos llevando a la página del negocio.</p>
+    <a class="boton claro" id="enlace-continuar" href="#" hidden>Continuar</a>
+  </section>
 
-    <p class="mensaje" id="mensaje">
-      Esta tarjeta todavía no ha sido asignada a ningún negocio.
-      Si acabas de recibirla, su activación estará disponible pronto.
-    </p>
-
-    <div class="ayuda">
-      <strong>¿Necesitas ayuda?</strong><br>
-      Para activar la tarjeta o informar de un problema,
-      contacta con la persona o empresa que te la entregó.
+  <!-- Pantalla: tarjeta todavía sin asignar -->
+  <section class="pantalla" id="pantalla-activacion" hidden>
+    <div class="icono">
+      <svg viewBox="0 0 96 96" fill="none" aria-hidden="true">
+        <rect x="24" y="10" width="48" height="76" rx="11" fill="#fff" stroke="#2e7d5a" stroke-width="3"/>
+        <rect x="31" y="18" width="10" height="10" rx="2" stroke="#2e7d5a" stroke-width="2.4"/>
+        <rect x="55" y="18" width="10" height="10" rx="2" stroke="#2e7d5a" stroke-width="2.4"/>
+        <rect x="31" y="32" width="10" height="10" rx="2" stroke="#2e7d5a" stroke-width="2.4"/>
+        <rect x="34" y="21" width="4" height="4" fill="#2e7d5a"/>
+        <rect x="58" y="21" width="4" height="4" fill="#2e7d5a"/>
+        <rect x="34" y="35" width="4" height="4" fill="#2e7d5a"/>
+        <rect x="55" y="32" width="3" height="3" fill="#2e7d5a"/>
+        <rect x="61" y="32" width="3" height="3" fill="#2e7d5a"/>
+        <rect x="58" y="37" width="3" height="3" fill="#2e7d5a"/>
+        <path class="onda o3" d="M30 62 Q48 46 66 62" stroke="#2e7d5a" stroke-width="3" stroke-linecap="round"/>
+        <path class="onda o2" d="M36 66 Q48 55 60 66" stroke="#2e7d5a" stroke-width="3" stroke-linecap="round"/>
+        <path class="onda o1" d="M42 70 Q48 64 54 70" stroke="#2e7d5a" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="48" cy="77" r="2.8" fill="#2e7d5a"/>
+      </svg>
     </div>
-
-    <a class="boton" id="botonSoporte" href="#"
-       target="_blank" rel="noopener noreferrer">
-      Contactar por WhatsApp
+    <h1>🚀 Tarjeta en proceso de activación</h1>
+    <p>Esta tarjeta todavía no ha sido asignada a ningún comercio. Si acabas de recibirla, pronto estará lista para usarse.</p>
+    <p>Si necesitas ayuda, contacta con soporte o con la persona que te entregó la tarjeta.</p>
+    <div class="codigo">Tarjeta <span id="codigo-tarjeta"></span></div><br>
+    <a class="boton btn-wa" href="#" hidden target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg>
+      Escribir por WhatsApp
     </a>
+  </section>
 
-    <p class="pie">Sistema de redirección QR y NFC</p>
-  </main>
+  <!-- Pantalla: ID inexistente o parámetro faltante -->
+  <section class="pantalla" id="pantalla-invalida" hidden>
+    <div class="icono aviso">
+      <svg viewBox="0 0 96 96" fill="none" aria-hidden="true">
+        <circle cx="48" cy="48" r="32" stroke="#9a6a12" stroke-width="3.5"/>
+        <path d="M48 30v22" stroke="#9a6a12" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="48" cy="64" r="3.4" fill="#9a6a12"/>
+      </svg>
+    </div>
+    <h1>No reconocemos esta tarjeta</h1>
+    <p>El enlace que abriste no corresponde a ninguna tarjeta registrada. Vuelve a escanear el código QR o acerca el teléfono a la placa.</p>
+    <p>Si el problema continúa, contacta con soporte.</p>
+    <a class="boton btn-wa" href="#" hidden target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg>
+      Escribir por WhatsApp
+    </a>
+  </section>
 
-  <script>
-    /*
-      ACTIVACIÓN DE TARJETAS
+  <!-- Pantalla: tarjeta asignada pero con enlace mal escrito o inseguro -->
+  <section class="pantalla" id="pantalla-enlace" hidden>
+    <div class="icono aviso">
+      <svg viewBox="0 0 96 96" fill="none" aria-hidden="true">
+        <path d="M40 56l16-16" stroke="#9a6a12" stroke-width="5" stroke-linecap="round"/>
+        <path d="M34 46l-7 7a11 11 0 0 0 16 16l7-7" stroke="#9a6a12" stroke-width="5" stroke-linecap="round"/>
+        <path d="M62 50l7-7a11 11 0 0 0-16-16l-7 7" stroke="#9a6a12" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1>Enlace no disponible</h1>
+    <p>Esta tarjeta está asignada a un negocio, pero su enlace de reseñas no se puede abrir de forma segura.</p>
+    <p>Avisa al comercio o a soporte para que lo revisen.</p>
+    <a class="boton btn-wa" href="#" hidden target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg>
+      Escribir por WhatsApp
+    </a>
+  </section>
 
-      1. Busca la tarjeta por su ID (001 a 020).
-      2. Pega su enlace de reseñas de Google Maps entre las comillas.
-      3. Deja las demás tarjetas como "" hasta que se vendan.
-    */
+  <noscript>
+    <h1>Activa JavaScript</h1>
+    <p>Esta página necesita JavaScript para abrir la tarjeta. Actívalo en tu navegador e inténtalo de nuevo.</p>
+  </noscript>
 
-    const DESTINOS = {
-      "001": "",
-      "002": "",
-      "003": "",
-      "004": "",
-      "005": "",
-      "006": "",
-      "007": "",
-      "008": "",
-      "009": "",
-      "010": "",
-      "011": "",
-      "012": "",
-      "013": "",
-      "014": "",
-      "015": "",
-      "016": "",
-      "017": "",
-      "018": "",
-      "019": "",
-      "020": ""
-    };
+  <p class="pie">Sistema de redirección QR y NFC</p>
+</main>
 
-    /*
-      OPCIONAL: enlace completo de WhatsApp de soporte.
+<script>
+"use strict";
 
-      Ejemplo de formato:
-      https://wa.me/51987654321
+/* =====================================================================
+   CONFIGURACIÓN OPCIONAL: WhatsApp de soporte
+   Escribe el número con código de país y sin "+", espacios ni guiones.
+   Ejemplo para Perú:  const WHATSAPP_NUMERO = "51999888777";
+   Si lo dejas vacío (""), el botón de WhatsApp no se muestra.
+   ===================================================================== */
+const WHATSAPP_NUMERO = "";
+const WHATSAPP_MENSAJE = "Hola, necesito ayuda con mi tarjeta QR/NFC.";
 
-      Reemplaza el número de ejemplo por el tuyo.
-      Usa el código del país y el número, sin +, espacios ni guiones.
-      Déjalo vacío para ocultar el botón de WhatsApp.
-    */
-    const ENLACE_WHATSAPP_SOPORTE = "";
 
-    const parametros = new URLSearchParams(window.location.search);
-    const id = (parametros.get("id") || "").trim();
+/* =====================================================================
+   ===== ACTIVACIÓN DE TARJETAS =====
+   Cuando vendas una tarjeta, pega el enlace de reseñas de Google del
+   negocio entre las comillas de su ID. Solo cambias esta línea.
 
-    const existe = Object.prototype.hasOwnProperty.call(DESTINOS, id);
-    const destino = existe ? DESTINOS[id].trim() : "";
+   Antes:    "005": "",
+   Después:  "005": "https://ENLACE-REAL-DE-GOOGLE",
 
-    // Tarjeta asignada: redirigir directamente a Google Maps.
-    if (existe && destino) {
-      try {
-        const urlDestino = new URL(destino);
+   Importante: "https://ENLACE-REAL-DE-GOOGLE" es solo un ejemplo.
+   Sustitúyelo por el enlace auténtico de reseñas del establecimiento
+   (Google Maps, g.page, goo.gl o maps.app.goo.gl). Debe empezar por https://
+   y no olvides la coma al final de la línea.
+   ===================================================================== */
+const DESTINOS = {
+  "001": "",
+  "002": "",
+  "003": "",
+  "004": "",
+  "005": "",
+  "006": "",
+  "007": "",
+  "008": "",
+  "009": "",
+  "010": "",
+  "011": "",
+  "012": "",
+  "013": "",
+  "014": "",
+  "015": "",
+  "016": "",
+  "017": "",
+  "018": "",
+  "019": "",
+  "020": ""
+};
+/* ===== FIN DE ACTIVACIÓN DE TARJETAS ===== */
 
-        if (
-          urlDestino.protocol === "https:" &&
-          esEnlaceGoogle(urlDestino.hostname)
-        ) {
-          window.location.href = urlDestino.href;
-        } else {
-          mostrarError(
-            "El enlace de esta tarjeta necesita revisión. Por favor, contacta con soporte.",
-            "Enlace pendiente de revisión",
-            "⚠️"
-          );
-        }
-      } catch (error) {
-        mostrarError(
-          "El enlace de esta tarjeta no está configurado correctamente. Por favor, contacta con soporte.",
-          "Enlace pendiente de revisión",
-          "⚠️"
-        );
-      }
 
-    } else if (existe) {
+/* ---------------------------------------------------------------------
+   Desde aquí hacia abajo no necesitas tocar nada.
+   --------------------------------------------------------------------- */
 
-      // ID correcto, pero todavía sin negocio asignado.
-      mostrarError(
-        "Esta tarjeta aún no ha sido asignada a ningún comercio. Si acabas de recibirla, contacta con quien te la entregó para completar la activación.",
-        "Tarjeta en proceso de activación",
-        "🚀"
-      );
+const ESTADO = {
+  ACTIVACION: "activacion",
+  INVALIDA: "invalida",
+  ENLACE: "enlace",
+  REDIRIGIR: "redirigir"
+};
 
-    } else {
+// Dominios cortos de Google que se aceptan tal cual.
+const DOMINIOS_GOOGLE_CORTOS = ["g.page", "goo.gl", "maps.app.goo.gl", "g.co"];
 
-      // ID ausente o fuera del inventario 001–020.
-      mostrarError(
-        "El código de esta tarjeta no es válido o no se encuentra en nuestro inventario. Comprueba que escaneaste el código correcto y contacta con soporte si el problema continúa.",
-        "No pudimos identificar tu tarjeta",
-        "🔎"
-      );
-    }
+// google.com, google.com.pe, google.es, maps.google.com, www.google.com, etc.
+const PATRON_GOOGLE = /^(?:[a-z0-9-]+\.)*google\.(?:com?\.[a-z]{2}|com|[a-z]{2})$/;
 
-    function esEnlaceGoogle(hostname) {
-      const host = hostname.toLowerCase();
+function leerId(search) {
+  const valor = new URLSearchParams(search).get("id");
+  return valor === null ? null : valor.trim();
+}
 
-      return /(^|\.)google\.[a-z.]+$/.test(host) ||
-             host === "g.page" ||
-             host === "goo.gl" ||
-             host.endsWith(".goo.gl");
-    }
+function esDestinoSeguro(valor) {
+  let url;
+  try {
+    url = new URL(valor);
+  } catch (e) {
+    return false;
+  }
+  if (url.protocol !== "https:") return false;
+  if (url.username || url.password || url.port) return false;
 
-    function mostrarError(texto, titulo, icono) {
-      document.getElementById("mensaje").textContent = texto;
-      document.getElementById("titulo").textContent = titulo;
-      document.getElementById("icono").textContent = icono;
+  const host = url.hostname.toLowerCase();
+  const esGoogle = DOMINIOS_GOOGLE_CORTOS.indexOf(host) !== -1 || PATRON_GOOGLE.test(host);
+  if (!esGoogle) return false;
 
-      const boton = document.getElementById("botonSoporte");
+  // google.com/url?q=... puede redirigir a cualquier sitio: se bloquea.
+  const ruta = url.pathname.toLowerCase();
+  if (ruta === "/url" || ruta.indexOf("/url/") === 0 || ruta.indexOf("/amp/") === 0) return false;
 
-      if (ENLACE_WHATSAPP_SOPORTE.trim()) {
-        boton.href = ENLACE_WHATSAPP_SOPORTE.trim();
-        boton.style.display = "inline-block";
-      }
-    }
-  </script>
+  return true;
+}
+
+function resolverTarjeta(search, destinos) {
+  const id = leerId(search);
+  const idValido = id !== null && /^\d{3}$/.test(id) &&
+                   Object.prototype.hasOwnProperty.call(destinos, id);
+  if (!idValido) return { estado: ESTADO.INVALIDA, id: null };
+
+  const destino = String(destinos[id] || "").trim();
+  if (destino === "") return { estado: ESTADO.ACTIVACION, id: id };
+  if (!esDestinoSeguro(destino)) return { estado: ESTADO.ENLACE, id: id };
+  return { estado: ESTADO.REDIRIGIR, id: id, url: new URL(destino).href };
+}
+
+function enlaceWhatsApp(id) {
+  const numero = String(WHATSAPP_NUMERO || "").replace(/\D/g, "");
+  if (numero.length < 8) return null;
+  let texto = WHATSAPP_MENSAJE;
+  if (id) texto += " Código de tarjeta: " + id + ".";
+  return "https://wa.me/" + numero + "?text=" + encodeURIComponent(texto);
+}
+
+function mostrar(nombre) {
+  document.querySelectorAll(".pantalla").forEach(function (el) {
+    el.hidden = el.id !== "pantalla-" + nombre;
+  });
+}
+
+function iniciar() {
+  const r = resolverTarjeta(window.location.search, DESTINOS);
+
+  const wa = enlaceWhatsApp(r.id);
+  document.querySelectorAll(".btn-wa").forEach(function (a) {
+    if (wa) { a.href = wa; a.hidden = false; } else { a.hidden = true; }
+  });
+
+  if (r.estado === ESTADO.REDIRIGIR) {
+    mostrar("cargando");
+    const continuar = document.getElementById("enlace-continuar");
+    continuar.href = r.url;
+    setTimeout(function () { continuar.hidden = false; }, 3000);
+    window.location.href = r.url;
+    return;
+  }
+
+  if (r.estado === ESTADO.ACTIVACION) {
+    document.getElementById("codigo-tarjeta").textContent = r.id;
+    mostrar("activacion");
+  } else if (r.estado === ESTADO.ENLACE) {
+    if (window.console) console.warn("La tarjeta " + r.id + " tiene un enlace no válido en DESTINOS.");
+    mostrar("enlace");
+  } else {
+    mostrar("invalida");
+  }
+}
+
+iniciar();
+</script>
 </body>
 </html>
